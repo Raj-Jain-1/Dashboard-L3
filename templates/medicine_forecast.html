@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1><i class="fa-solid fa-pills pulse-animation"></i> AI Medicine Demand Forecasting</h1>
+</div>
+
+<div class="glass-panel span-2" style="padding: 20px;">
+    <div class="table-responsive">
+        <table class="cyber-table" id="medicineTable">
+            <thead>
+                <tr>
+                    <th>Medicine / Resource</th>
+                    <th>Current Stock</th>
+                    <th>Predicted Demand (7 Days)</th>
+                    <th>AI Status Indicator</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populated by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Cyber Modal for Alerts/Actions -->
+<div id="cyberModal" class="cyber-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
+    <div class="glass-panel" style="padding: 30px; text-align: center; border: 1px solid var(--neon-cyan); max-width: 400px;">
+        <i class="fa-solid fa-satellite-dish pulse-animation" style="font-size: 3rem; color: var(--neon-cyan); margin-bottom: 20px;"></i>
+        <h3 style="color: white; margin-bottom: 10px;">Action Confirmed</h3>
+        <p id="modalMessage" style="color: var(--text-muted); margin-bottom: 20px;"></p>
+        <button class="cyber-btn" onclick="document.getElementById('cyberModal').style.display='none'">Acknowledge</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/api/medicine_forecast')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.querySelector('#medicineTable tbody');
+                tbody.innerHTML = '';
+                data.forEach(med => {
+                    const statusClass = med.status === 'Adequate' ? 'text-positive' : 'text-critical';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${med.name}</td>
+                            <td>${med.current_stock} Units</td>
+                            <td>${med.predicted_demand_next_7d} Units</td>
+                            <td class="${statusClass}"><i class="fa-solid fa-circle-dot"></i> ${med.status}</td>
+                            <td><button class="cyber-btn-small" onclick="handleManageMedicine('${med.name}')">Manage</button></td>
+                        </tr>
+                    `;
+                });
+            });
+    });
+
+    function handleManageMedicine(medicineName) {
+        document.getElementById('modalMessage').innerText = `Supply chain re-order protocol initiated for ${medicineName}. The vendor has been automatically notified via AI Smart Contract.`;
+        document.getElementById('cyberModal').style.display = 'flex';
+    }
+</script>
+{% endblock %}

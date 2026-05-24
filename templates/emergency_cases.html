@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1><i class="fa-solid fa-truck-medical pulse-animation"></i> Emergency Triage Live Feed</h1>
+</div>
+
+<div class="glass-panel" style="padding: 20px;">
+    <div class="table-responsive">
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>ETA</th>
+                    <th>Patient ID</th>
+                    <th>Condition Summary</th>
+                    <th>Triage Level</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02 mins</td>
+                    <td>EMG-7489</td>
+                    <td>Severe chest pain, shortness of breath</td>
+                    <td class="text-critical"><i class="fa-solid fa-triangle-exclamation"></i> CRITICAL (Level 1)</td>
+                    <td><button class="cyber-btn-small" onclick="handleEmergencyAction()">Assign Team Alpha</button></td>
+                </tr>
+                <tr>
+                    <td>08 mins</td>
+                    <td>EMG-7490</td>
+                    <td>Blunt force trauma, motor vehicle accident</td>
+                    <td class="text-critical"><i class="fa-solid fa-triangle-exclamation"></i> CRITICAL (Level 1)</td>
+                    <td><button class="cyber-btn-small" onclick="handleEmergencyAction()">Assign Team Beta</button></td>
+                </tr>
+                <tr>
+                    <td>15 mins</td>
+                    <td>EMG-7491</td>
+                    <td>Laceration on right arm, bleeding controlled</td>
+                    <td style="color: var(--neon-yellow);"><i class="fa-solid fa-circle-exclamation"></i> URGENT (Level 2)</td>
+                    <td><button class="cyber-btn-small" onclick="handleEmergencyAction()">Prepare Bay 3</button></td>
+                </tr>
+                <tr>
+                    <td>Arrived</td>
+                    <td>EMG-7492</td>
+                    <td>High fever, suspected viral infection</td>
+                    <td class="text-positive"><i class="fa-solid fa-info-circle"></i> STANDARD (Level 3)</td>
+                    <td><button class="cyber-btn-small" onclick="handleEmergencyAction()">Route to OPD</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function handleEmergencyAction() {
+        alert("Action Registered: Emergency Response Team deployed and Bay prepared.");
+    }
+</script>
+{% endblock %}

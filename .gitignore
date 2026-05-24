@@ -1,0 +1,29 @@
+# AI Smart Hospital Analytics Platform
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environment
+venv/
+env/
+.env
+.venv/
+
+# Flask database (SQLite - ephemeral on Render)
+instance/
+*.db
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db

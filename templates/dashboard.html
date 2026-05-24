@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1><i class="fa-solid fa-satellite-dish pulse-animation"></i> Command Center</h1>
+    <div class="datetime-display" id="systemClock">00:00:00</div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card glass-panel">
+        <div class="kpi-icon"><i class="fa-solid fa-bed-pulse"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-label">ICU Occupancy</span>
+            <h3 class="kpi-value" id="icuValue">Loading...</h3>
+        </div>
+        <div class="kpi-trend positive"><i class="fa-solid fa-arrow-up"></i> <span id="icuTrend">...</span></div>
+    </div>
+    
+    <div class="kpi-card glass-panel">
+        <div class="kpi-icon warning"><i class="fa-solid fa-truck-medical"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-label">ER Wait Time</span>
+            <h3 class="kpi-value" id="erWaitValue">Loading...</h3>
+        </div>
+        <div class="kpi-trend negative"><i class="fa-solid fa-arrow-down"></i> <span id="erTrend">...</span></div>
+    </div>
+
+    <div class="kpi-card glass-panel">
+        <div class="kpi-icon critical"><i class="fa-solid fa-biohazard"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-label">Active Outbreaks</span>
+            <h3 class="kpi-value" id="outbreakValue">Loading...</h3>
+        </div>
+        <div class="kpi-trend"><span id="outbreakTrend">Scanning...</span></div>
+    </div>
+
+    <div class="kpi-card glass-panel">
+        <div class="kpi-icon info"><i class="fa-solid fa-user-doctor"></i></div>
+        <div class="kpi-info">
+            <span class="kpi-label">Active Staff</span>
+            <h3 class="kpi-value" id="staffValue">Loading...</h3>
+        </div>
+        <div class="kpi-trend positive">Optimal</div>
+    </div>
+</div>
+
+<!-- Main Charts Area -->
+<div class="charts-grid">
+    <div class="chart-container glass-panel span-2">
+        <div class="chart-header">
+            <h3><i class="fa-solid fa-chart-area"></i> Real-time Patient Influx</h3>
+            <div class="chart-actions">
+                <button class="active">Live</button>
+                <button>24H</button>
+            </div>
+        </div>
+        <div id="patientInfluxChart" class="chart-canvas"></div>
+    </div>
+    
+    <div class="chart-container glass-panel">
+        <div class="chart-header">
+            <h3><i class="fa-solid fa-hospital"></i> Department Load Heatmap</h3>
+        </div>
+        <div id="deptLoadChart" class="chart-canvas"></div>
+    </div>
+</div>
+
+<!-- Bottom Section: Alerts & Quick Actions -->
+<div class="bottom-grid">
+    <div class="glass-panel alert-panel">
+        <div class="chart-header">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> AI Smart Alerts</h3>
+        </div>
+        <ul class="alert-list" id="smartAlerts">
+            <li class="alert-item warning">
+                <i class="fa-solid fa-pills"></i>
+                <div class="alert-text">
+                    <strong>Predictive Warning:</strong> Anesthetics stock predicted to deplete in 48 hrs.
+                </div>
+                <button class="cyber-btn-small">Order</button>
+            </li>
+            <!-- Dynamic alerts will go here -->
+        </ul>
+    </div>
+    
+    <div class="glass-panel">
+        <div class="chart-header">
+            <h3><i class="fa-solid fa-clipboard-list"></i> System Activity Log</h3>
+        </div>
+        <div class="activity-log">
+            <div class="log-item">
+                <span class="log-time">10:42:01</span>
+                <span class="log-msg">Dr. Vance accessed secure patient records.</span>
+            </div>
+            <div class="log-item">
+                <span class="log-time">10:39:15</span>
+                <span class="log-msg critical">Emergency Override: ICU Bed 12 reassigned.</span>
+            </div>
+            <div class="log-item">
+                <span class="log-time">10:30:00</span>
+                <span class="log-msg">System Backup Completed.</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

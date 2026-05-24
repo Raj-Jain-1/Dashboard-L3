@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1><i class="fa-solid fa-brain pulse-animation"></i> Deep Analytics Engine</h1>
+</div>
+
+<div class="charts-grid">
+    <!-- Medicine Demand Prediction -->
+    <div class="chart-container glass-panel span-2">
+        <div class="chart-header">
+            <h3><i class="fa-solid fa-pills"></i> AI Medicine Demand Forecasting (Next 7 Days)</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="cyber-table" id="medicineTable">
+                <thead>
+                    <tr>
+                        <th>Medicine / Resource</th>
+                        <th>Current Stock</th>
+                        <th>Predicted Demand</th>
+                        <th>AI Status Indicator</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Outbreak Detection -->
+    <div class="chart-container glass-panel span-2">
+        <div class="chart-header">
+            <h3><i class="fa-solid fa-virus-covid"></i> Disease Outbreak Detection Matrix</h3>
+        </div>
+        <div class="outbreak-cards" id="outbreakCards">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- Cyber Modal for Alerts/Actions -->
+<div id="cyberModal" class="cyber-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
+    <div class="glass-panel" style="padding: 30px; text-align: center; border: 1px solid var(--neon-cyan); max-width: 400px;">
+        <i class="fa-solid fa-satellite-dish pulse-animation" style="font-size: 3rem; color: var(--neon-cyan); margin-bottom: 20px;"></i>
+        <h3 style="color: white; margin-bottom: 10px;">Action Confirmed</h3>
+        <p id="modalMessage" style="color: var(--text-muted); margin-bottom: 20px;"></p>
+        <button class="cyber-btn" onclick="document.getElementById('cyberModal').style.display='none'">Acknowledge</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Fetch and populate Analytics Page Data
+    document.addEventListener('DOMContentLoaded', () => {
+        // Medicine
+        fetch('/api/medicine_forecast')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.querySelector('#medicineTable tbody');
+                tbody.innerHTML = '';
+                data.forEach(med => {
+                    const statusClass = med.status === 'Adequate' ? 'text-positive' : 'text-critical';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${med.name}</td>
+                            <td>${med.current_stock} Units</td>
+                            <td>${med.predicted_demand_next_7d} Units</td>
+                            <td class="${statusClass}"><i class="fa-solid fa-circle-dot"></i> ${med.status}</td>
+                            <td><button class="cyber-btn-small" onclick="handleManageMedicine('${med.name}')">Manage</button></td>
+                        </tr>
+                    `;
+                });
+            });
+
+        // Outbreaks
+        fetch('/api/outbreaks')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('outbreakCards');
+                container.innerHTML = '';
+                if(data.length === 0) {
+                    container.innerHTML = '<div class="alert-item positive"><i class="fa-solid fa-check"></i> No active outbreaks detected by AI.</div>';
+                } else {
+                    data.forEach(outbreak => {
+                        const sevClass = outbreak.severity === 'High' ? 'critical-bg' : 'warning-bg';
+                        container.innerHTML += `
+                            <div class="outbreak-card ${sevClass}">
+                                <h4><i class="fa-solid fa-biohazard"></i> ${outbreak.disease}</h4>
+                                <p>Cases (24h): <strong>${outbreak.cases_last_24h}</strong></p>
+                                <p>Severity: <strong>${outbreak.severity}</strong></p>
+                                <p>Trend: <i class="fa-solid fa-arrow-trend-up"></i> ${outbreak.trend}</p>
+                            </div>
+                        `;
+                    });
+                }
+            });
+    });
+
+    function handleManageMedicine(medicineName) {
+        document.getElementById('modalMessage').innerText = `Supply chain re-order protocol initiated for ${medicineName}. The vendor has been automatically notified via AI Smart Contract.`;
+        document.getElementById('cyberModal').style.display = 'flex';
+    }
+</script>
+{% endblock %}

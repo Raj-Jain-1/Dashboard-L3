@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Hospital Analytics Platform</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-heart-pulse neon-text"></i>
+                    <span>NeuroMed AI</span>
+                </div>
+                <button class="toggle-btn" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="nav-item active">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Real-time Monitor</span>
+                </a>
+                <a href="{{ url_for('analytics') }}" class="nav-item">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>AI Insights & Analytics</span>
+                </a>
+                <a href="{{ url_for('icu_occupancy') }}" class="nav-item">
+                    <i class="fa-solid fa-bed-pulse"></i>
+                    <span>ICU Occupancy</span>
+                </a>
+                <a href="{{ url_for('emergency_cases') }}" class="nav-item">
+                    <i class="fa-solid fa-truck-medical"></i>
+                    <span>Emergency Cases</span>
+                </a>
+                <a href="{{ url_for('doctor_performance') }}" class="nav-item">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <span>Doctor Performance</span>
+                </a>
+                <a href="{{ url_for('medicine_forecast') }}" class="nav-item">
+                    <i class="fa-solid fa-pills"></i>
+                    <span>Medicine Forecast</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{{ url_for('login') }}" class="nav-item logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Disconnect System</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search patient IDs, doctors, or modules...">
+                </div>
+                <div class="topbar-actions">
+                    <div class="notification-icon" id="notifBell">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge pulse-animation" id="notifBadge">3</span>
+
+                        <!-- Notification Dropdown Panel -->
+                        <div class="notif-dropdown glass-panel" id="notifDropdown">
+                            <div class="notif-header">
+                                <span><i class="fa-solid fa-satellite-dish"></i> System Alerts</span>
+                                <button id="clearAllNotifs">Clear All</button>
+                            </div>
+                            <ul class="notif-list" id="notifList">
+                                <li class="notif-item unread" data-id="1">
+                                    <div class="notif-icon-wrap warning"><i class="fa-solid fa-pills"></i></div>
+                                    <div class="notif-body">
+                                        <strong>Low Stock Warning</strong>
+                                        <p>Anesthetics stock predicted to deplete in 48 hrs.</p>
+                                        <span class="notif-time">2 min ago</span>
+                                    </div>
+                                    <span class="notif-dot"></span>
+                                </li>
+                                <li class="notif-item unread" data-id="2">
+                                    <div class="notif-icon-wrap critical"><i class="fa-solid fa-biohazard"></i></div>
+                                    <div class="notif-body">
+                                        <strong>Outbreak Alert</strong>
+                                        <p>Influenza A cases rising in Ward 4. Monitoring active.</p>
+                                        <span class="notif-time">18 min ago</span>
+                                    </div>
+                                    <span class="notif-dot"></span>
+                                </li>
+                                <li class="notif-item unread" data-id="3">
+                                    <div class="notif-icon-wrap info"><i class="fa-solid fa-bed-pulse"></i></div>
+                                    <div class="notif-body">
+                                        <strong>ICU Capacity</strong>
+                                        <p>ICU occupancy has exceeded 85%. Review bed allocation.</p>
+                                        <span class="notif-time">34 min ago</span>
+                                    </div>
+                                    <span class="notif-dot"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff"
+                            alt="User Profile">
+                        <div class="user-info">
+                            <span class="user-name">Dr. Melody </span>
+                            <span class="user-role">Chief Administrator</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+
+        <!-- AI Chatbot Assistant Widget -->
+        <div class="ai-assistant-widget">
+            <button class="assistant-toggle" id="aiToggle">
+                <div class="hologram-effect"></div>
+                <i class="fa-solid fa-robot"></i>
+            </button>
+            <div class="chat-window glass-panel" id="chatWindow">
+                <div class="chat-header">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span>Medical AI Assistant</span>
+                    <button id="closeChat"><i class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="chat-body" id="chatBody">
+                    <div class="message ai-message">
+                        Sys: Medical AI initialized. How can I assist you with symptom analysis or hospital operations
+                        today?
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Type query or symptoms...">
+                    <button id="sendMessage"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>
