@@ -65,29 +65,7 @@ Glassmorphism UI
 Neon gradients
 Holographic animations
 
-📂 Project Structure
-AI-Smart-Hospital/
-│
-├── app.py
-├── models.py
-├── ai_engine.py
-├── requirements.txt
-│
-├── templates/
-│   ├── base.html
-│   ├── dashboard.html
-│   ├── analytics.html
-│   └── login.html
-│
-├── static/
-│   ├── css/
-│   │   └── style.css
-│   │
-│   └── js/
-│       ├── main.js
-│       └── charts.js
-│
-└── README.md
+
 
 
 ⚙️ Installation
@@ -112,6 +90,9 @@ python app.py
 
 Server will start at:
 [https://dashboard-l3.onrender.com](https://dashboard-l3.onrender.com)
+Use Id - admin
+Pass - admin123 
+s
 
 🧠 AI Functionalities
 Feature	Description
