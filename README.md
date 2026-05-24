@@ -90,9 +90,9 @@ python app.py
 
 Server will start at:
 [https://dashboard-l3.onrender.com](https://dashboard-l3.onrender.com)
-Use Id - admin
+Use Id - admin ,
 Pass - admin123 
-s
+
 
 🧠 AI Functionalities
 Feature	Description
