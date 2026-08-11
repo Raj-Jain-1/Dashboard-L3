@@ -50,6 +50,9 @@ The main real-time monitoring dashboard with live KPI cards, interactive charts,
 #### [NEW] `templates/analytics.html`
 Dedicated page for deeper predictive analytics, doctor performance, and resource optimization.
 
+#### [NEW] `templates/data_upload.html`
+A dedicated page for uploading raw data (CSV) and automatically generating beautiful, interactive charts (via ECharts) matching the cyberpunk theme.
+
 #### [NEW] `templates/login.html`
 A futuristic authentication page with glowing inputs and a holographic login card.
 

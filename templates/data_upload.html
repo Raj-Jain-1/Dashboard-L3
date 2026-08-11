@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1><i class="fa-solid fa-cloud-arrow-up pulse-animation"></i> Data Upload & Visualization</h1>
+    <p class="text-muted">Upload your CSV data files to automatically generate analytical insights and visualizations.</p>
+</div>
+
+<div class="charts-grid">
+    <!-- Upload Section -->
+    <div class="chart-container glass-panel span-2">
+        <div class="chart-header">
+            <h3><i class="fa-solid fa-file-csv"></i> Upload Dataset</h3>
+        </div>
+        <div class="upload-area" id="uploadArea" style="border: 2px dashed var(--neon-cyan); padding: 40px; text-align: center; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; margin-bottom: 20px;">
+            <i class="fa-solid fa-cloud-arrow-up pulse-animation" style="font-size: 3rem; color: var(--neon-cyan); margin-bottom: 15px;"></i>
+            <h4 style="color: white; margin-bottom: 10px;">Drag & Drop your CSV file here</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">or click to browse from your device</p>
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+        </div>
+        <div id="uploadStatus" style="text-align: center; font-weight: bold; margin-top: 10px;"></div>
+    </div>
+
+    <!-- Chart Visualization Section -->
+    <div id="vizContainer" style="display: none; width: 100%; grid-column: span 2;">
+        <div class="charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="chart-container glass-panel">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-chart-column"></i> Comparative Analysis</h3>
+                </div>
+                <div id="barChart" style="width: 100%; height: 300px;"></div>
+            </div>
+            
+            <div class="chart-container glass-panel">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-chart-line"></i> Trend Analysis</h3>
+                </div>
+                <div id="lineChart" style="width: 100%; height: 300px;"></div>
+            </div>
+
+            <div class="chart-container glass-panel">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-chart-pie"></i> Distribution (Primary Metric)</h3>
+                </div>
+                <div id="pieChart" style="width: 100%; height: 300px;"></div>
+            </div>
+
+            <div class="chart-container glass-panel">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-chart-area"></i> Volume Analysis</h3>
+                </div>
+                <div id="areaChart" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const vizContainer = document.getElementById('vizContainer');
+        let barChart = null;
+        let lineChart = null;
+        let pieChart = null;
+        let areaChart = null;
+
+        // Handle clicking on upload area
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'rgba(0, 243, 255, 0.1)';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'transparent';
+            if (e.dataTransfer.files.length > 0) {
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        function handleFileUpload(file) {
+            if (!file.name.endsWith('.csv')) {
+                uploadStatus.innerHTML = '<span class="text-critical"><i class="fa-solid fa-triangle-exclamation"></i> Please upload a valid CSV file.</span>';
+                return;
+            }
+
+            uploadStatus.innerHTML = '<span style="color: var(--neon-purple);"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing data...</span>';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/api/upload_data', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    uploadStatus.innerHTML = `<span class="text-critical"><i class="fa-solid fa-triangle-exclamation"></i> Error: ${data.error}</span>`;
+                    return;
+                }
+
+                uploadStatus.innerHTML = `<span class="text-positive"><i class="fa-solid fa-check-circle"></i> File "${data.filename}" processed successfully!</span>`;
+                renderChart(data);
+            })
+            .catch(err => {
+                uploadStatus.innerHTML = '<span class="text-critical"><i class="fa-solid fa-triangle-exclamation"></i> Failed to upload data.</span>';
+                console.error(err);
+            });
+        }
+
+        function renderChart(data) {
+            vizContainer.style.display = 'block';
+
+            if (!barChart) barChart = echarts.init(document.getElementById('barChart'), 'dark');
+            if (!lineChart) lineChart = echarts.init(document.getElementById('lineChart'), 'dark');
+            if (!pieChart) pieChart = echarts.init(document.getElementById('pieChart'), 'dark');
+            if (!areaChart) areaChart = echarts.init(document.getElementById('areaChart'), 'dark');
+
+            // Theme colors matching the cyberpunk aesthetic
+            const colors = ['#00f3ff', '#bc13fe', '#ff003c', '#00ffaa', '#ffea00'];
+
+            const commonOptions = {
+                backgroundColor: 'transparent',
+                color: colors,
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' }, // Added crosshair
+                    backgroundColor: 'rgba(10, 10, 18, 0.9)',
+                    borderColor: '#00f3ff',
+                    textStyle: { color: '#e0e0e0' }
+                },
+                legend: {
+                    data: data.datasets.map(ds => ds.name),
+                    textStyle: { color: '#8892b0' }
+                },
+                toolbox: { // PROFESSIONAL TOOLBOX ADDED
+                    show: true,
+                    feature: {
+                        dataZoom: { yAxisIndex: 'none' },
+                        dataView: { readOnly: false },
+                        magicType: { type: ['line', 'bar'] },
+                        restore: {},
+                        saveAsImage: {}
+                    },
+                    iconStyle: { borderColor: '#00f3ff' }
+                },
+                dataZoom: [ // PROFESSIONAL ZOOM SLIDER ADDED
+                    { type: 'inside', start: 0, end: 100 },
+                    { start: 0, end: 100, textStyle: { color: '#8892b0' } }
+                ],
+                grid: {
+                    left: '3%', right: '4%', bottom: '15%', containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.labels,
+                    axisLine: { lineStyle: { color: '#8892b0' } },
+                    axisLabel: { color: '#8892b0' }
+                },
+                yAxis: {
+                    type: 'value',
+                    splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    axisLine: { lineStyle: { color: '#8892b0' } },
+                    axisLabel: { color: '#8892b0' }
+                }
+            };
+
+            // 1. Bar Chart Option
+            const barOption = {
+                ...commonOptions,
+                series: data.datasets.map(ds => ({
+                    name: ds.name,
+                    type: 'bar',
+                    data: ds.data,
+                    itemStyle: { borderRadius: [4, 4, 0, 0] }
+                }))
+            };
+
+            // 2. Line Chart Option
+            const lineOption = {
+                ...commonOptions,
+                xAxis: { ...commonOptions.xAxis, boundaryGap: false },
+                series: data.datasets.map(ds => ({
+                    name: ds.name,
+                    type: 'line',
+                    smooth: true,
+                    data: ds.data
+                }))
+            };
+
+            // 3. Pie Chart Option (Using the first dataset only)
+            let pieData = [];
+            if (data.datasets.length > 0) {
+                const firstDataset = data.datasets[0];
+                // Limit to max 10 slices for pie readability
+                for (let i = 0; i < Math.min(data.labels.length, 10); i++) {
+                    pieData.push({ value: firstDataset.data[i], name: data.labels[i] });
+                }
+            }
+            
+            const pieOption = {
+                backgroundColor: 'transparent',
+                color: colors,
+                tooltip: { trigger: 'item', backgroundColor: 'rgba(10, 10, 18, 0.9)', borderColor: '#00f3ff', textStyle: { color: '#e0e0e0' } },
+                legend: { show: false }, // Hide legend to save space
+                toolbox: { 
+                    show: true, 
+                    feature: { saveAsImage: {} },
+                    iconStyle: { borderColor: '#00f3ff' }
+                },
+                series: [
+                    {
+                        name: data.datasets.length > 0 ? data.datasets[0].name : 'Data',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: { borderRadius: 10, borderColor: 'rgba(10, 10, 18, 1)', borderWidth: 2 },
+                        label: { show: false, position: 'center' },
+                        emphasis: {
+                            label: { show: true, fontSize: 18, fontWeight: 'bold' }
+                        },
+                        labelLine: { show: false },
+                        data: pieData
+                    }
+                ]
+            };
+
+            // 4. Area Chart Option
+            const areaOption = {
+                ...commonOptions,
+                xAxis: { ...commonOptions.xAxis, boundaryGap: false },
+                series: data.datasets.map(ds => ({
+                    name: ds.name,
+                    type: 'line',
+                    smooth: true,
+                    areaStyle: {
+                        opacity: 0.3
+                    },
+                    data: ds.data
+                }))
+            };
+
+            // Render all charts
+            barChart.setOption(barOption, true);
+            lineChart.setOption(lineOption, true);
+            pieChart.setOption(pieOption, true);
+            areaChart.setOption(areaOption, true);
+            
+            // Handle window resize for all charts
+            window.addEventListener('resize', () => {
+                barChart.resize();
+                lineChart.resize();
+                pieChart.resize();
+                areaChart.resize();
+            });
+        }
+    });
+</script>
+{% endblock %}
